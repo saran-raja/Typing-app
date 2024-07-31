@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./home.css";
 
 const TypingApp = () => {
@@ -8,12 +8,12 @@ const TypingApp = () => {
   const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
-  const [wordsTyped, setWordsTyped] = useState(0);
+  // Removed wordsTyped state
   const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
   const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
   const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
-  console.log(typedWord);
-  const fetchWords = () => {
+
+  const fetchWords = useCallback(() => {
     axios
       .get(url)
       .then((response) => {
@@ -31,7 +31,7 @@ const TypingApp = () => {
       .catch((error) => {
         console.log(error);
       });
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchWords();
@@ -64,7 +64,6 @@ const TypingApp = () => {
           setTypedWord((prevTypedWord) => prevTypedWord + event.key);
 
           if (currentLetterIndex + 1 === currentWord.length) {
-            setWordsTyped((prevWordsTyped) => prevWordsTyped + 1);
             setCurrentWordIndex((prevIndex) => prevIndex + 1);
             setCurrentLetterIndex(0);
             setTypedWord("");
@@ -72,7 +71,6 @@ const TypingApp = () => {
             if (currentWordIndex + 1 === splittedWords.length) {
               fetchWords();
               setCurrentWordIndex(0);
-              setWordsTyped(0);
             }
           }
         } else {
@@ -95,7 +93,7 @@ const TypingApp = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentWordIndex, currentLetterIndex, splittedWords]);
+  }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
 
   return (
     <div>
