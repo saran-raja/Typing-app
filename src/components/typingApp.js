@@ -3,39 +3,40 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./home.css";
 
 const TypingApp = () => {
+  const [typedWord, setTypedWord] = useState("");
   const [splittedWords, setSplittedWords] = useState([]);
   const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false); // New state for game over
-  const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
-  const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
-  const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
+  const [loading, setLoading] = useState(true); // Add a loading state
+console.log(typedWord);
+  const fetchWords = useCallback(async () => {
+    try {
+      const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
+      const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
+      const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
 
-  // Fetch words with useCallback to prevent unnecessary re-renders
-  const fetchWords = useCallback(() => {
-    axios
-      .get(url)
-      .then((response) => {
-        const fetchedWords = response.data.map((word) => word + " ");
-        setSplittedWords(
-          fetchedWords.map((word) =>
-            word.split("").map((letter) => ({
-              letter,
-              matched: false,
-              incorrect: false,
-            }))
-          )
-        );
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [url]);
+      const response = await axios.get(url);
 
-  // Fetch words on component mount and reset alphabet
+      const fetchedWords = response.data.map((word) => word + " ");
+      setSplittedWords(
+        fetchedWords.map((word) =>
+          word.split("").map((letter) => ({
+            letter,
+            matched: false,
+            incorrect: false,
+          }))
+        )
+      );
+    } catch (error) {
+      console.error("Error fetching words:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching is done
+    }
+  }, []);
+
   useEffect(() => {
-    fetchWords();
+    fetchWords(); // Fetch words on component mount
 
     const alphabetArray = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(65 + i)
@@ -44,10 +45,9 @@ const TypingApp = () => {
     setAlphabet(alphabetArray);
   }, [fetchWords]);
 
-  // Handle key down events
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (splittedWords.length > 0 && !isGameOver) {
+      if (splittedWords.length > 0) {
         const currentWord = splittedWords[currentWordIndex];
         const currentLetter = currentWord[currentLetterIndex].letter;
 
@@ -63,15 +63,17 @@ const TypingApp = () => {
 
           setSplittedWords(updatedSplittedWords);
           setCurrentLetterIndex((prevIndex) => prevIndex + 1);
+          setTypedWord((prevTypedWord) => prevTypedWord + event.key);
 
           if (currentLetterIndex + 1 === currentWord.length) {
             setCurrentWordIndex((prevIndex) => prevIndex + 1);
             setCurrentLetterIndex(0);
+            setTypedWord("");
 
             if (currentWordIndex + 1 === splittedWords.length) {
+              setLoading(true); // Set loading to true before fetching new words
               fetchWords();
               setCurrentWordIndex(0);
-              setIsGameOver(false); // Reset game over state
             }
           }
         } else {
@@ -94,7 +96,7 @@ const TypingApp = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords, isGameOver]);
+  }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
 
   return (
     <div>
@@ -103,36 +105,42 @@ const TypingApp = () => {
           <div className="home col-7">
             <div className="col-12 paracontent d-flex flex-column justify-content-center">
               <section className="col-12 para d-flex flex-row p-4">
-                {splittedWords.map((wordArr, index) => (
-                  <p key={index}>
-                    {wordArr.map((letterObj, id) => (
-                      <span
-                        key={id}
-                        className={
-                          index === currentWordIndex &&
-                          id === currentLetterIndex
-                            ? "current-letter"
-                            : ""
-                        }
-                        style={{
-                          color: letterObj.matched
-                            ? "green"
-                            : letterObj.incorrect
-                            ? "red"
-                            : "black",
-                          textDecoration:
+                {loading ? (
+                  <p>Loading words...</p>
+                ) : splittedWords.length > 0 ? (
+                  splittedWords.map((wordArr, index) => (
+                    <p key={index}>
+                      {wordArr.map((letterObj, id) => (
+                        <span
+                          key={id}
+                          className={
                             index === currentWordIndex &&
                             id === currentLetterIndex
-                              ? "underline"
-                              : "none",
-                        }}
-                      >
-                        {letterObj.letter}
-                      </span>
-                    ))}
-                    {" _"}
-                  </p>
-                ))}
+                              ? "current-letter"
+                              : ""
+                          }
+                          style={{
+                            color: letterObj.matched
+                              ? "green"
+                              : letterObj.incorrect
+                              ? "red"
+                              : "black",
+                            textDecoration:
+                              index === currentWordIndex &&
+                              id === currentLetterIndex
+                                ? "underline"
+                                : "none",
+                          }}
+                        >
+                          {letterObj.letter}
+                        </span>
+                      ))}
+                      {" _"}
+                    </p>
+                  ))
+                ) : (
+                  <p>No words available.</p>
+                )}
               </section>
             </div>
             <section className="keys d-flex justify-content-center col-12 pt-5">
