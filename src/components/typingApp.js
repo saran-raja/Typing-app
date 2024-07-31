@@ -1,16 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "./home.css";
+
 const TypingApp = () => {
-  const [typedWord, setTypedWord] = useState("");
   const [splittedWords, setSplittedWords] = useState([]);
-  const [words, setWords] = useState([]);
   const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
-  const [wordsTyped, setWordsTyped] = useState(0);
   const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
-  console.log(randomNumber);
   const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
   const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
 
@@ -19,13 +16,15 @@ const TypingApp = () => {
       .get(url)
       .then((response) => {
         const fetchedWords = response.data.map((word) => word + " ");
-        setWords(fetchedWords);
-        const newSplittedWords = fetchedWords.map((word) =>
-          word
-            .split("")
-            .map((letter) => ({ letter, matched: false, incorrect: false }))
+        setSplittedWords(
+          fetchedWords.map((word) =>
+            word.split("").map((letter) => ({
+              letter,
+              matched: false,
+              incorrect: false,
+            }))
+          )
         );
-        setSplittedWords(newSplittedWords);
       })
       .catch((error) => {
         console.log(error);
@@ -35,10 +34,9 @@ const TypingApp = () => {
   useEffect(() => {
     fetchWords();
 
-    const alphabetArray = [];
-    for (let i = 65; i <= 90; i++) {
-      alphabetArray.push(String.fromCharCode(i));
-    }
+    const alphabetArray = Array.from({ length: 26 }, (_, i) =>
+      String.fromCharCode(65 + i)
+    );
     alphabetArray.push(" ");
     setAlphabet(alphabetArray);
   }, []);
@@ -56,27 +54,19 @@ const TypingApp = () => {
             incorrect:
               index === currentLetterIndex ? false : letterObj.incorrect,
           }));
-          // console.log(currentLetter);
           const updatedSplittedWords = [...splittedWords];
           updatedSplittedWords[currentWordIndex] = updatedCurrentWord;
 
           setSplittedWords(updatedSplittedWords);
           setCurrentLetterIndex((prevIndex) => prevIndex + 1);
-          setTypedWord((prevTypedWord) => prevTypedWord + event.key);
-          // console.log(updatedSplittedWords);
-          // setSplittedWords(updatedSplittedWords);
-          //           setCurrentLetterIndex((prevIndex) => prevIndex + 1);
-          // setTypedWord((prevTypedWord) => prevTypedWord + event.key);
+
           if (currentLetterIndex + 1 === currentWord.length) {
-            setWordsTyped((prevWordsTyped) => prevWordsTyped + 1);
             setCurrentWordIndex((prevIndex) => prevIndex + 1);
             setCurrentLetterIndex(0);
-            setTypedWord("");
 
             if (currentWordIndex + 1 === splittedWords.length) {
               fetchWords();
               setCurrentWordIndex(0);
-              setWordsTyped(0);
             }
           }
         } else {
@@ -107,7 +97,7 @@ const TypingApp = () => {
         <div className="row justify-content-center">
           <div className="home col-7">
             <div className="col-12 paracontent d-flex flex-column justify-content-center">
-              <section className="col-12 para d-flex flex-row  p-4">
+              <section className="col-12 para d-flex flex-row p-4">
                 {splittedWords.map((wordArr, index) => (
                   <p key={index}>
                     {wordArr.map((letterObj, id) => (
@@ -134,7 +124,7 @@ const TypingApp = () => {
                       >
                         {letterObj.letter}
                       </span>
-                    ))}{" "}
+                    ))}
                     {" _"}
                   </p>
                 ))}
