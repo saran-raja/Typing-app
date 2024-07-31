@@ -30,23 +30,22 @@ const TypingApp = () => {
         console.log(error);
       });
   };
-
   useEffect(() => {
     fetchWords();
-
+  
     const alphabetArray = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(65 + i)
     );
     alphabetArray.push(" ");
     setAlphabet(alphabetArray);
-  }, []);
-
+  }, [fetchWords]);
+  
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (splittedWords.length > 0) {
         const currentWord = splittedWords[currentWordIndex];
         const currentLetter = currentWord[currentLetterIndex].letter;
-
+  
         if (event.key === currentLetter) {
           const updatedCurrentWord = currentWord.map((letterObj, index) => ({
             ...letterObj,
@@ -56,14 +55,14 @@ const TypingApp = () => {
           }));
           const updatedSplittedWords = [...splittedWords];
           updatedSplittedWords[currentWordIndex] = updatedCurrentWord;
-
+  
           setSplittedWords(updatedSplittedWords);
           setCurrentLetterIndex((prevIndex) => prevIndex + 1);
-
+  
           if (currentLetterIndex + 1 === currentWord.length) {
             setCurrentWordIndex((prevIndex) => prevIndex + 1);
             setCurrentLetterIndex(0);
-
+  
             if (currentWordIndex + 1 === splittedWords.length) {
               fetchWords();
               setCurrentWordIndex(0);
@@ -75,22 +74,22 @@ const TypingApp = () => {
             incorrect:
               index === currentLetterIndex ? true : letterObj.incorrect,
           }));
-
+  
           const updatedSplittedWords = [...splittedWords];
           updatedSplittedWords[currentWordIndex] = updatedCurrentWord;
-
+  
           setSplittedWords(updatedSplittedWords);
         }
       }
     };
-
+  
     window.addEventListener("keydown", handleKeyDown);
-
+  
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentWordIndex, currentLetterIndex, splittedWords]);
-
+  }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
+  
   return (
     <div>
       <div className="container-fluid">
