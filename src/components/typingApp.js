@@ -8,7 +8,7 @@ const TypingApp = () => {
   const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
-  // Removed wordsTyped state
+  console.log(typedWord);
   const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
   const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
   const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
