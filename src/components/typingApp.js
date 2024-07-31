@@ -1,17 +1,20 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./home.css";
 
 const TypingApp = () => {
+  // const [typedWord, setTypedWord] = useState("");
   const [splittedWords, setSplittedWords] = useState([]);
   const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+  // const [wordsTyped, setWordsTyped] = useState(0);
+
   const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
   const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
   const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
 
-  const fetchWords = () => {
+  const fetchWords = useCallback(() => {
     axios
       .get(url)
       .then((response) => {
@@ -29,23 +32,24 @@ const TypingApp = () => {
       .catch((error) => {
         console.log(error);
       });
-  };
+  }, [url]);
+
   useEffect(() => {
     fetchWords();
-  
+
     const alphabetArray = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(65 + i)
     );
     alphabetArray.push(" ");
     setAlphabet(alphabetArray);
   }, [fetchWords]);
-  
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (splittedWords.length > 0) {
         const currentWord = splittedWords[currentWordIndex];
         const currentLetter = currentWord[currentLetterIndex].letter;
-  
+
         if (event.key === currentLetter) {
           const updatedCurrentWord = currentWord.map((letterObj, index) => ({
             ...letterObj,
@@ -55,17 +59,21 @@ const TypingApp = () => {
           }));
           const updatedSplittedWords = [...splittedWords];
           updatedSplittedWords[currentWordIndex] = updatedCurrentWord;
-  
+
           setSplittedWords(updatedSplittedWords);
           setCurrentLetterIndex((prevIndex) => prevIndex + 1);
-  
+          // setTypedWord((prevTypedWord) => prevTypedWord + event.key);
+
           if (currentLetterIndex + 1 === currentWord.length) {
+            // setWordsTyped((prevWordsTyped) => prevWordsTyped + 1);
             setCurrentWordIndex((prevIndex) => prevIndex + 1);
             setCurrentLetterIndex(0);
-  
+            // setTypedWord("");
+
             if (currentWordIndex + 1 === splittedWords.length) {
               fetchWords();
               setCurrentWordIndex(0);
+              // setWordsTyped(0);
             }
           }
         } else {
@@ -74,22 +82,22 @@ const TypingApp = () => {
             incorrect:
               index === currentLetterIndex ? true : letterObj.incorrect,
           }));
-  
+
           const updatedSplittedWords = [...splittedWords];
           updatedSplittedWords[currentWordIndex] = updatedCurrentWord;
-  
+
           setSplittedWords(updatedSplittedWords);
         }
       }
     };
-  
+
     window.addEventListener("keydown", handleKeyDown);
-  
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
-  
+
   return (
     <div>
       <div className="container-fluid">
