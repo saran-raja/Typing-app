@@ -12,7 +12,7 @@ const TypingApp = () => {
   const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
   const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
   const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
-console.log(typedWord);
+  console.log(typedWord);
   const fetchWords = () => {
     axios
       .get(url)
@@ -41,7 +41,7 @@ console.log(typedWord);
     );
     alphabetArray.push(" ");
     setAlphabet(alphabetArray);
-  }, []);
+  }, [fetchWords]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
