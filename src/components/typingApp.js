@@ -8,16 +8,14 @@ const TypingApp = () => {
   const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
-  const [loading, setLoading] = useState(true); // Add a loading state
-console.log(typedWord);
+  const [loading, setLoading] = useState(true);
+  const [wordLength, setWordLength] = useState(4);
   const fetchWords = useCallback(async () => {
     try {
       const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
-      const randomLength = Math.floor(Math.random() * (7 - 4) + 4);
-      const url = `https://random-word-api.herokuapp.com/word?length=${randomLength}&number=${randomNumber}`;
+      const url = `https://random-word-api.herokuapp.com/word?length=${wordLength}&number=${randomNumber}`;
 
       const response = await axios.get(url);
-
       const fetchedWords = response.data.map((word) => word + " ");
       setSplittedWords(
         fetchedWords.map((word) =>
@@ -29,14 +27,14 @@ console.log(typedWord);
         )
       );
     } catch (error) {
-      console.error("Error fetching words:", error);
+      console.error(error);
     } finally {
-      setLoading(false); // Set loading to false after fetching is done
+      setLoading(false);
     }
-  }, []);
+  }, [wordLength]);
 
   useEffect(() => {
-    fetchWords(); // Fetch words on component mount
+    fetchWords();
 
     const alphabetArray = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(65 + i)
@@ -71,7 +69,7 @@ console.log(typedWord);
             setTypedWord("");
 
             if (currentWordIndex + 1 === splittedWords.length) {
-              setLoading(true); // Set loading to true before fetching new words
+              setLoading(true);
               fetchWords();
               setCurrentWordIndex(0);
             }
@@ -98,11 +96,38 @@ console.log(typedWord);
     };
   }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
 
+  const handleWordLength = (event) => {
+    if (event.target.name === "add") {
+      setWordLength((prevLength) => prevLength + 1);
+    } else if (event.target.name === "minus" && wordLength > 4) {
+      setWordLength((prevLength) => prevLength - 1);
+    }
+  };
+
+  console.log(wordLength);
+
   return (
     <div>
       <div className="container-fluid">
         <div className="row justify-content-center">
           <div className="home col-7">
+            <div className="d-flex">
+              <button
+                className="btn btn-primary"
+                onClick={handleWordLength}
+                name="minus"
+              >
+                -
+              </button>
+              <p>{wordLength}</p>
+              <button
+                className="btn btn-primary"
+                onClick={handleWordLength}
+                name="add"
+              >
+                +
+              </button>
+            </div>
             <div className="col-12 paracontent d-flex flex-column justify-content-center">
               <section className="col-12 para d-flex flex-row p-4">
                 {loading ? (
