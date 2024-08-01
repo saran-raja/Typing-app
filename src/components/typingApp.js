@@ -10,6 +10,7 @@ const TypingApp = () => {
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [wordLength, setWordLength] = useState(4);
+  console.log(typedWord);
   const fetchWords = useCallback(async () => {
     try {
       const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
