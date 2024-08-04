@@ -9,12 +9,12 @@ const TypingApp = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [wordLength, setWordLength] = useState(4);
+  // const [wordLength, setWordLength] = useState(4);
   console.log(typedWord);
   const fetchWords = useCallback(async () => {
     try {
       const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
-      const url = `https://random-word-api.herokuapp.com/word?length=${wordLength}&number=${randomNumber}`;
+      const url = `https://random-word-api.herokuapp.com/word?length=${4}&number=${randomNumber}`;
 
       const response = await axios.get(url);
       const fetchedWords = response.data.map((word) => word + " ");
@@ -32,14 +32,15 @@ const TypingApp = () => {
     } finally {
       setLoading(false);
     }
-  }, [wordLength]);
-
+  }, []);
+// wordLength
   useEffect(() => {
     fetchWords();
 
     const alphabetArray = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(65 + i)
     );
+    
     alphabetArray.push(" ");
     setAlphabet(alphabetArray);
   }, [fetchWords]);
@@ -97,22 +98,22 @@ const TypingApp = () => {
     };
   }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
 
-  const handleWordLength = (event) => {
-    if (event.target.name === "add") {
-      setWordLength((prevLength) => prevLength + 1);
-    } else if (event.target.name === "minus" && wordLength > 4) {
-      setWordLength((prevLength) => prevLength - 1);
-    }
-  };
+  // const handleWordLength = (event) => {
+  //   if (event.target.name === "add") {
+  //     setWordLength((prevLength) => prevLength + 1);
+  //   } else if (event.target.name === "minus" && wordLength > 4) {
+  //     setWordLength((prevLength) => prevLength - 1);
+  //   }
+  // };
 
-  console.log(wordLength);
+  // console.log(wordLength);
 
   return (
     <div>
       <div className="container-fluid">
         <div className="row justify-content-center">
           <div className="home col-7">
-            <div className="d-flex">
+            {/* <div className="d-flex">
               <button
                 className="btn btn-primary"
                 onClick={handleWordLength}
@@ -128,7 +129,7 @@ const TypingApp = () => {
               >
                 +
               </button>
-            </div>
+            </div> */}
             <div className="col-12 paracontent d-flex flex-column justify-content-center">
               <section className="col-12 para d-flex flex-row p-4">
                 {loading ? (
@@ -161,7 +162,7 @@ const TypingApp = () => {
                           {letterObj.letter}
                         </span>
                       ))}
-                      {" _"}
+                      {"_"}
                     </p>
                   ))
                 ) : (
