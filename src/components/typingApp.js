@@ -5,12 +5,12 @@ import "./home.css";
 const TypingApp = () => {
   const [typedWord, setTypedWord] = useState("");
   const [splittedWords, setSplittedWords] = useState([]);
-  const [alphabet, setAlphabet] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  // const [wordLength, setWordLength] = useState(4);
+
   console.log(typedWord);
+
   const fetchWords = useCallback(async () => {
     try {
       const randomNumber = Math.floor(Math.random() * (20 - 12) + 12);
@@ -33,16 +33,9 @@ const TypingApp = () => {
       setLoading(false);
     }
   }, []);
-// wordLength
+
   useEffect(() => {
     fetchWords();
-
-    const alphabetArray = Array.from({ length: 26 }, (_, i) =>
-      String.fromCharCode(65 + i)
-    );
-    
-    alphabetArray.push(" ");
-    setAlphabet(alphabetArray);
   }, [fetchWords]);
 
   useEffect(() => {
@@ -98,38 +91,19 @@ const TypingApp = () => {
     };
   }, [currentWordIndex, currentLetterIndex, splittedWords, fetchWords]);
 
-  // const handleWordLength = (event) => {
-  //   if (event.target.name === "add") {
-  //     setWordLength((prevLength) => prevLength + 1);
-  //   } else if (event.target.name === "minus" && wordLength > 4) {
-  //     setWordLength((prevLength) => prevLength - 1);
-  //   }
-  // };
-
-  // console.log(wordLength);
+  // Keyboard rows arranged in QWERTY layout
+  const keyboardRows = [
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+    ["Z", "X", "C", "V", "B", "N", "M"],
+    [" "], // Spacebar
+  ];
 
   return (
     <div>
       <div className="container-fluid">
         <div className="row justify-content-center">
-          <div className="home col-7">
-            {/* <div className="d-flex">
-              <button
-                className="btn btn-primary"
-                onClick={handleWordLength}
-                name="minus"
-              >
-                -
-              </button>
-              <p>{wordLength}</p>
-              <button
-                className="btn btn-primary"
-                onClick={handleWordLength}
-                name="add"
-              >
-                +
-              </button>
-            </div> */}
+          <div className="home col-12">
             <div className="col-12 paracontent d-flex flex-column justify-content-center">
               <section className="col-12 para d-flex flex-row p-4">
                 {loading ? (
@@ -170,10 +144,18 @@ const TypingApp = () => {
                 )}
               </section>
             </div>
-            <section className="keys d-flex justify-content-center col-12 pt-5">
-              {alphabet.map((item, index) => (
-                <div key={index} className="col-2 key-item">
-                  {item}
+            <section className="keys d-flex flex-column align-items-center col-12 pt-5">
+              {keyboardRows.map((row, rowIndex) => (
+                <div key={rowIndex} className="d-flex justify-content-center">
+                  {row.map((key, keyIndex) => (
+                    <div
+                      key={keyIndex}
+                      className="key-item p-2 m-1 border rounded"
+                      style={{ width: "40px", textAlign: "center" }}
+                    >
+                      {key}
+                    </div>
+                  ))}
                 </div>
               ))}
             </section>
