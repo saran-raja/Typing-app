@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleLogin = () => {
-    // Simulate login action
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    // Simulate logout action
     setIsAuthenticated(false);
   };
 
